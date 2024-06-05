@@ -1,63 +1,55 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Google Maps Multiple Locations</title>
-    <style>
-      /* Set the size of the div element that contains the map */
-      #map {
-        height: 100%;
-      }
-      /* The height and width of the HTML and body need to be 100% */
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="map"></div>
+    <title>Addresses Awaiting Certification Map</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=REPLACE_WITH_API_KEY"></script>
     <script>
-      // Initialize and add the map
+      // Function to get addresses from URL parameters
+      function getAddressesFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const addresses = urlParams.get('addresses');
+        return addresses ? JSON.parse(decodeURIComponent(addresses)) : [];
+      }
+
       function initMap() {
-        const addresses = JSON.parse(decodeURIComponent(window.location.search.split('=')[1]));
-        // The map, centered at Portland
-        const map = new google.maps.Map(document.getElementById("map"), {
+        // Map centered on Portland, OR
+        const mapCenter = { lat: 45.512794, lng: -122.679565 };
+        const map = new google.maps.Map(document.getElementById('map'), {
           zoom: 10,
-          center: { lat: 45.5122, lng: -122.6587 },
+          center: mapCenter
         });
 
-        // Geocoder service
+        const addresses = getAddressesFromURL();
         const geocoder = new google.maps.Geocoder();
 
-        // Loop through the addresses and place markers
-        addresses.forEach((address) => {
-          geocoder.geocode({ address: address }, (results, status) => {
-            if (status === "OK") {
-              const marker = new google.maps.Marker({
-                map: map,
-                position: results[0].geometry.location,
-              });
+        addresses.forEach(address => {
+          geocodeAddress(geocoder, map, address);
+        });
+      }
 
-              const infowindow = new google.maps.InfoWindow({
-                content: address,
-              });
+      function geocodeAddress(geocoder, map, address) {
+        geocoder.geocode({ address: address }, (results, status) => {
+          if (status === 'OK') {
+            const marker = new google.maps.Marker({
+              map: map,
+              position: results[0].geometry.location
+            });
 
-              marker.addListener("click", () => {
-                infowindow.open(map, marker);
-              });
-            } else {
-              console.error("Geocode was not successful for the following reason: " + status);
-            }
-          });
+            const infoWindow = new google.maps.InfoWindow({
+              content: address
+            });
+
+            marker.addListener('click', () => {
+              infoWindow.open(map, marker);
+            });
+          } else {
+            console.error('Geocode was not successful for the following reason: ' + status);
+          }
         });
       }
     </script>
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBT3P0EVeS7mVhhdUVOYSp-E1IcbwTm8B4&callback=initMap"
-      async
-      defer
-    ></script>
+  </head>
+  <body onload="initMap()">
+    <div id="map" style="height: 100%; width: 100%;"></div>
   </body>
 </html>
