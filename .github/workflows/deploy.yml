@@ -1,30 +1,20 @@
-name: Deploy to GitHub Pages
+name: Deploy
 
 on:
   push:
     branches:
-      - main  # Change this to your default branch if different
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3  # Ensure we're using the latest version
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Git
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git config --global --add safe.directory $GITHUB_WORKSPACE
-
-    - name: Replace API key in HTML file
-      run: |
-        sed -i "s/REPLACE_WITH_API_KEY/${{ secrets.MAP_API_KEY }}/g" map.html
-
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4  # Ensure we're using the latest version
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: .  # The directory to publish
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: root
+          publish_dir: ./
