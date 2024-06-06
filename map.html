@@ -28,7 +28,20 @@
 
     // Initialize and add the map
     function initMap() {
-      const addresses = JSON.parse(getUrlParameter('addresses'));
+      const addressesParam = getUrlParameter('addresses');
+      let addresses = [];
+      try {
+        addresses = JSON.parse(addressesParam);
+        console.log('Addresses:', addresses);
+      } catch (e) {
+        console.error('Failed to parse addresses from URL parameter:', e);
+      }
+
+      if (addresses.length === 0) {
+        console.error('No addresses to display.');
+        return;
+      }
+
       // The map, centered at Portland
       const map = new google.maps.Map(document.getElementById("map"), {
         zoom: 10,
