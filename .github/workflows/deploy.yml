@@ -11,14 +11,22 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3  # Updated to v3
+      uses: actions/checkout@v3  # Ensure we're using the latest version
 
     - name: Replace API key in HTML file
       run: |
         sed -i "s/REPLACE_WITH_API_KEY/${{ secrets.MAP_API_KEY }}/g" map.html
 
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4  # Updated to v4
+      uses: peaceiris/actions-gh-pages@v4  # Ensure we're using the latest version
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: .  # The directory to publish
+        verbose: true  # Add verbose logging to diagnose issues
+
+    - name: Debug Git Environment
+      run: |
+        git config --global --add safe.directory $GITHUB_WORKSPACE
+        git remote -v
+        git status
+        git log -n 5
