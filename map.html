@@ -1,62 +1,63 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Google Maps Multiple Locations</title>
-  <style>
-    #map {
-      height: 100%;
-    }
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-  </style>
-</head>
-<body>
-  <div id="map"></div>
-  <script>
-    function getAddressesFromURL() {
-      try {
+  <head>
+    <title>Google Maps Multiple Locations</title>
+    <style>
+      /* Set the size of the div element that contains the map */
+      #map {
+        height: 100%;
+      }
+      /* The height and width of the HTML and body need to be 100% */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      function initMap() {
         const urlParams = new URLSearchParams(window.location.search);
         const addressesParam = urlParams.get('addresses');
-        return addressesParam ? JSON.parse(decodeURIComponent(addressesParam)) : [];
-      } catch (e) {
-        console.error('Failed to parse addresses from URL parameter:', e);
-        return [];
-      }
-    }
+        let addresses = [];
 
-    function initMap() {
-      const addresses = getAddressesFromURL();
-      console.log("Addresses:", addresses);
+        try {
+          addresses = JSON.parse(decodeURIComponent(addressesParam));
+        } catch (error) {
+          console.error('Failed to parse addresses from URL parameter:', error);
+        }
 
-      if (addresses.length === 0) {
-        console.log("No addresses to display.");
-        return;
-      }
+        console.log('Addresses:', addresses);
 
-      const map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 10,
-        center: { lat: 45.5122, lng: -122.6587 },
-      });
+        if (addresses.length === 0) {
+          console.warn('No addresses to display.');
+          return;
+        }
 
-      const geocoder = new google.maps.Geocoder();
-
-      addresses.forEach((address) => {
-        geocoder.geocode({ address: address }, (results, status) => {
-          if (status === "OK") {
-            new google.maps.Marker({
-              map: map,
-              position: results[0].geometry.location,
-            });
-          } else {
-            console.error("Geocode was not successful for the following reason: " + status);
-          }
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 10,
+          center: { lat: 45.5122, lng: -122.6587 },
         });
-      });
-    }
-  </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
-</body>
+
+        const geocoder = new google.maps.Geocoder();
+
+        addresses.forEach((address) => {
+          geocoder.geocode({ address: address }, (results, status) => {
+            if (status === "OK") {
+              new google.maps.Marker({
+                map: map,
+                position: results[0].geometry.location,
+              });
+            } else {
+              console.error("Geocode was not successful for the following reason: " + status);
+            }
+          });
+        });
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+  </body>
 </html>
